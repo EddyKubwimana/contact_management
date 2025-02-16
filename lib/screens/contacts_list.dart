@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'add_contact.dart';
+import 'view_contact.dart';
+import '../services/contact_services'; // Import the ContactService class
 
 class ContactsListScreen extends StatefulWidget {
   const ContactsListScreen({Key? key}) : super(key: key);
@@ -11,18 +13,15 @@ class ContactsListScreen extends StatefulWidget {
 class _ContactsListScreenState extends State<ContactsListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  final List<String> _favorites = [
-    'A. Amos Butezi',
-    'A. Annie',
-    'B. Belyse',
-    'D. Desiderata',
-    'E. Emily Guard',
-    'F. Felix',
-    'G. Gilbert',
-    'L. London Call',
-  ];
-  final List<String> _allContacts =
-      List.generate(20, (index) => 'Contact ${index + 1}');
+  List<Map<String, dynamic>> _allContacts =
+      []; // List to store fetched contacts
+  bool _isLoading = true; // To track loading state
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchContacts(); // Fetch contacts when the screen loads
+  }
 
   @override
   void dispose() {
@@ -30,13 +29,30 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
     super.dispose();
   }
 
+  // Fetching contact from ContactService Class
+  Future<void> _fetchContacts() async {
+    try {
+      final contacts = await ContactService.getAllContacts();
+      setState(() {
+        _allContacts = contacts;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error fetching contacts: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<String> searchResults = _searchQuery.isEmpty
+    final List<Map<String, dynamic>> searchResults = _searchQuery.isEmpty
         ? []
         : _allContacts
-            .where((contact) =>
-                contact.toLowerCase().contains(_searchQuery.toLowerCase()))
+            .where((contact) => contact['pname']
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()))
             .toList();
 
     return Scaffold(
@@ -62,12 +78,18 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
             ),
           ),
 
-          // Search Results or Contact List
-          Expanded(
-            child: _searchQuery.isEmpty
-                ? _buildContactList()
-                : _buildSearchResults(searchResults),
-          ),
+          // Loading Indicator
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            )
+          else
+            // Search Results or Contact List
+            Expanded(
+              child: _searchQuery.isEmpty
+                  ? _buildContactList()
+                  : _buildSearchResults(searchResults),
+            ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -78,7 +100,10 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
               builder: (context) => const AddContactScreen(),
               settings: const RouteSettings(name: '/add_contact'),
             ),
-          );
+          ).then((_) {
+            // Refresh the contact list after adding a new contact
+            _fetchContacts();
+          });
         },
         backgroundColor: const Color(0xFF2E6E6F),
         child: const Icon(Icons.add, color: Colors.white),
@@ -86,16 +111,10 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
     );
   }
 
-  // Build the contact list (favorites + all contacts)
+  // Build the contact list
   Widget _buildContactList() {
     return ListView(
       children: [
-        // Favorites Section
-        _buildSectionHeader('Favorites'),
-        ..._favorites.map((contact) => _buildContactTile(contact)).toList(),
-
-        const Divider(height: 1),
-
         // All Contacts Section
         _buildSectionHeader('All Contacts'),
         ..._allContacts.map((contact) => _buildContactTile(contact)).toList(),
@@ -104,7 +123,7 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
   }
 
   // Build search results
-  Widget _buildSearchResults(List<String> results) {
+  Widget _buildSearchResults(List<Map<String, dynamic>> results) {
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, index) {
@@ -129,7 +148,7 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
   }
 
   // Helper method to build a contact tile
-  Widget _buildContactTile(String name) {
+  Widget _buildContactTile(Map<String, dynamic> contact) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       elevation: 2.0,
@@ -142,14 +161,22 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
           child: Icon(Icons.person, color: Colors.white),
         ),
         title: Text(
-          name,
+          contact['pname'],
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text('${name.toLowerCase().replaceAll(' ', '')}@example.com'),
+        subtitle: Text(contact['pphone']),
         trailing: const Icon(Icons.arrow_forward, color: Color(0xFF2E6E6F)),
         onTap: () {
-          // Navigate to edit contact screen
-          // Navigator.push(...);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ViewContactScreen(contact: contact),
+            ),
+          ).then((deleted) {
+            if (deleted == true) {
+              _fetchContacts();
+            }
+          });
         },
       ),
     );
