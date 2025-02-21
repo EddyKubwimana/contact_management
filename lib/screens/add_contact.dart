@@ -14,54 +14,75 @@ class _AddContactScreenState extends State<AddContactScreen> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
 
-  // Method to add a new contact
-  Future<void> _addContact() async {
-    // Combine first name and last name
-    final String fullName =
-        '${_firstNameController.text} ${_lastNameController.text}';
-    final String phone = _phoneController.text;
+  // Regular expression to validate phone number (only digits)
+  final RegExp phoneRegex = RegExp(r'^[0-9]+$');
 
-    // Validate inputs
-    if (fullName.trim().isEmpty || phone.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in all fields.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
+  // Method to validate inputs before adding a contact
+  bool _validateInputs() {
+    String firstName = _firstNameController.text.trim();
+    String lastName = _lastNameController.text.trim();
+    String phone = _phoneController.text.trim();
+
+    if (firstName.isEmpty || lastName.isEmpty) {
+      _showSnackbar('Please enter both first and last names.', Colors.red);
+      return false;
     }
 
+    if (phone.isEmpty) {
+      _showSnackbar('Please enter a phone number.', Colors.red);
+      return false;
+    }
+
+    if (!phoneRegex.hasMatch(phone)) {
+      _showSnackbar('Phone number must contain only digits.', Colors.red);
+      return false;
+    }
+
+    if (phone.length < 8 || phone.length > 15) {
+      _showSnackbar(
+          'Phone number must be between 8 and 15 digits.', Colors.red);
+      return false;
+    }
+
+    return true;
+  }
+
+  // Method to show a Snackbar message
+  void _showSnackbar(String message, Color backgroundColor) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+      ),
+    );
+  }
+
+  // function to add a nwe contact
+  Future<void> _addContact() async {
+    if (!_validateInputs()) return;
+
+    final String fullName =
+        '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}';
+    final String phone = _phoneController.text.trim();
+
     try {
-      // Call the API to add the contact
       final response = await ContactService.addContact(fullName, phone);
 
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response),
-          backgroundColor: const Color(0xFF2E6E6F),
-        ),
-      );
+      // Displaying success message
+      _showSnackbar(response, const Color(0xFF2E6E6F));
 
-      // Clear the text fields after successful addition
+      // claearing text fields after adding a contact
       _firstNameController.clear();
       _lastNameController.clear();
       _phoneController.clear();
     } catch (e) {
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to add contact: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      //  error message
+      _showSnackbar('Failed to add contact: $e', Colors.red);
     }
   }
 
   @override
   void dispose() {
-    // Dispose controllers to avoid memory leaks
     _firstNameController.dispose();
     _lastNameController.dispose();
     _phoneController.dispose();
@@ -72,7 +93,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Contact'),
+        title: const Text(''),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -115,7 +136,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
             ),
             const SizedBox(height: 24.0),
 
-            // Add Contact Button
+            //  Contact Button
             ElevatedButton(
               onPressed: _addContact,
               style: ElevatedButton.styleFrom(

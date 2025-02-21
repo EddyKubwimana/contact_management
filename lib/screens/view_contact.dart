@@ -36,7 +36,7 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
     super.dispose();
   }
 
-  // Method to update the contact
+  // function to update the contact
   Future<void> _updateContact() async {
     final String fullName =
         '${_firstNameController.text} ${_lastNameController.text}';
@@ -93,8 +93,8 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(response ? 'true' : 'false'),
-          backgroundColor: response ? Colors.green : Colors.red,
+          content: Text(response ? 'false' : 'true'),
+          backgroundColor: response ? Color(0xFF2E6E6F) : Colors.red,
         ),
       );
 

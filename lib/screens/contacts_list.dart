@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'add_contact.dart';
 import 'view_contact.dart';
 import '../services/contact_services';
 
@@ -96,22 +95,6 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
                   : _buildSearchResults(searchResults),
             ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddContactScreen(),
-              settings: const RouteSettings(name: '/add_contact'),
-            ),
-          ).then((_) {
-            // Refresh the contact list after adding a new contact
-            _fetchContacts();
-          });
-        },
-        backgroundColor: const Color(0xFF2E6E6F),
-        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

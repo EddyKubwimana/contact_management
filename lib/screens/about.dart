@@ -1,7 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({Key? key}) : super(key: key);
+
+  // Function to launch email
+  void _launchEmail() async {
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: 'eddy.kubwimana@ashesi.edu.gh',
+      queryParameters: {'subject': 'Support Inquiry'},
+    );
+
+    if (await canLaunchUrl(emailUri)) {
+      await launchUrl(emailUri);
+    } else {
+      throw 'Could not launch $emailUri';
+    }
+  }
+
+  // Function to launch a URL
+  void _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +36,7 @@ class AboutScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // App Logo and Name
+            // Header with app name and version
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 40),
@@ -27,11 +53,7 @@ class AboutScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const Icon(
-                    Icons.contacts,
-                    size: 80,
-                    color: Colors.white,
-                  ),
+                  const Icon(Icons.contacts, size: 80, color: Colors.white),
                   const SizedBox(height: 16),
                   const Text(
                     'Contact Manager',
@@ -55,11 +77,11 @@ class AboutScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Developer Information
+            // Developer Info Card
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Card(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withOpacity(0.9),
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -75,15 +97,12 @@ class AboutScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 137, 119, 119),
+                            color: Color(0xFF555555),
                           ),
                         ),
                         subtitle: Text(
                           'Student ID: 83092025',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color.fromARGB(255, 137, 119, 119),
-                          ),
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                       ),
                       Divider(),
@@ -94,17 +113,13 @@ class AboutScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 137, 119, 119),
+                            color: Color(0xFF555555),
                           ),
                         ),
                         subtitle: Text(
-                          'Contact Manager is a simple and intuitive app to manage your contacts. '
-                          'You can add, edit, and delete contacts with ease. '
-                          'Stay organized and keep your contacts in one place!',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color.fromARGB(255, 137, 119, 119),
-                          ),
+                          'Contact Manager helps you organize your contacts efficiently. '
+                          'You can add, edit, and delete contacts with ease, keeping all your connections in one place.',
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                       ),
                     ],
@@ -115,6 +130,33 @@ class AboutScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
+            // Support Email
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: ListTile(
+                  leading: const Icon(Icons.email, color: Color(0xFF2E6E6F)),
+                  title: const Text(
+                    'Support Email',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF555555),
+                    ),
+                  ),
+                  subtitle: const Text('eddy.kubwimana@ashesi.edu.gh'),
+                  onTap: _launchEmail,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Social Media Links
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Card(
@@ -127,58 +169,35 @@ class AboutScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       const ListTile(
-                        leading: Icon(Icons.star, color: Color(0xFF2E6E6F)),
+                        leading: Icon(Icons.link, color: Color(0xFF2E6E6F)),
                         title: Text(
-                          'Fun Fact',
+                          'Connect with Me',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 137, 119, 119),
-                          ),
-                        ),
-                        subtitle: Text(
-                          'This app was built with ❤️ using Flutter!',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color.fromARGB(255, 137, 119, 119),
+                            color: Color(0xFF555555),
                           ),
                         ),
                       ),
                       const Divider(),
-                      ListTile(
-                        leading:
-                            const Icon(Icons.link, color: Color(0xFF2E6E6F)),
-                        title: const Text(
-                          'Follow Me',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 137, 119, 119),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon:
+                                const Icon(Icons.business, color: Colors.blue),
+                            iconSize: 30,
+                            onPressed: () => _launchURL(
+                                'https://www.linkedin.com/in/eddy-kubwimana'),
                           ),
-                        ),
-                        subtitle: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.facebook,
-                                  color: Colors.blue),
-                              onPressed: () {
-                                // Add your Facebook link here
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.link, color: Colors.blue),
-                              onPressed: () {
-                                // Add your LinkedIn link here
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.code, color: Colors.blue),
-                              onPressed: () {
-                                // Add your GitHub link here
-                              },
-                            ),
-                          ],
-                        ),
+                          const SizedBox(width: 20),
+                          IconButton(
+                            icon: const Icon(Icons.code, color: Colors.black),
+                            iconSize: 30,
+                            onPressed: () =>
+                                _launchURL('https://github.com/EddyKubwimana'),
+                          ),
+                        ],
                       ),
                     ],
                   ),
