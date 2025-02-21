@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'add_contact.dart';
 import 'view_contact.dart';
-import '../services/contact_services'; // Import the ContactService class
+import '../services/contact_services';
 
 class ContactsListScreen extends StatefulWidget {
   const ContactsListScreen({Key? key}) : super(key: key);
@@ -60,14 +60,19 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
         children: [
           // Search Bar
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(20.0),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search contacts...',
+                hintText: 'Search .....',
                 prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                enabledBorder: const UnderlineInputBorder(
+                  borderSide:
+                      const BorderSide(color: Color(0xFF2E6E6F), width: 2.0),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide:
+                      const BorderSide(color: Color(0xFF2E6E6F), width: 2.5),
                 ),
               ),
               onChanged: (value) {
@@ -116,7 +121,7 @@ class _ContactsListScreenState extends State<ContactsListScreen> {
     return ListView(
       children: [
         // All Contacts Section
-        _buildSectionHeader('All Contacts'),
+        _buildSectionHeader('Contacts'),
         ..._allContacts.map((contact) => _buildContactTile(contact)).toList(),
       ],
     );

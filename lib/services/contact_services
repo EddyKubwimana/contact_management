@@ -38,14 +38,14 @@ class ContactService {
     }
   }
 
-  // function to edit a contact
+ 
   static Future<String> editContact(String fullName, String phone, String contactId) async {
     final url = Uri.parse('$_baseUrl/update_contact');
     final response = await http.post(
       url,
       body: {
-        'ufullname': fullName,
-        'uphonename': phone,
+        'cname': fullName,
+        'cnum': phone,
         'cid': contactId,
       },
     );
@@ -57,7 +57,8 @@ class ContactService {
     }
   }
 
-  // function to delete a contact
+
+// function to delete an existing contact
   static Future<bool> deleteContact(String contactId) async {
     final url = Uri.parse('$_baseUrl/delete_contact');
     final response = await http.post(
